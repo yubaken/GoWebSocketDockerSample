@@ -1,0 +1,12 @@
+version: '2'
+networks:
+  go_web:
+
+services:
+  go_web:
+    build: .
+    container_name: go_web
+    networks:
+      - go_web
+    ports:
+      - "80:80"
