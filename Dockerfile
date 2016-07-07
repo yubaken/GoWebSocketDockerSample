@@ -1,11 +1,18 @@
 FROM golang:1.6.2
 
 RUN go get -u github.com/kataras/iris/iris
+RUN go get -u github.com/go-sql-driver/mysql
 
-COPY ./* /src/
+RUN mkdir -p /opt/iris/
 
-WORKDIR /src
+COPY ./*.go /opt/iris/
+COPY ./static /opt/iris/static
+COPY ./templates /opt/iris/templates
 
-EXPOSE 8080
+WORKDIR /opt/iris/
+RUN chmod -R 775 *
+RUN mkdir -p /opt/iris/certs
 
-CMD go run /src/main.go
+EXPOSE 80
+
+CMD go run /opt/iris/main.go

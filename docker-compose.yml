@@ -1,6 +1,7 @@
 version: '2'
 networks:
   go_web:
+  db:
 
 services:
   go_web:
@@ -8,6 +9,17 @@ services:
     container_name: go_web
     networks:
       - go_web
+      - db
     ports:
       - "80:80"
-      - "8080:8080"
+    depends_on:
+      - db
+  db:
+    image: mysql:5.7.13
+    container_name: db
+    networks:
+      - db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password

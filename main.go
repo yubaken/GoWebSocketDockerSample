@@ -6,7 +6,6 @@ import (
 	"github.com/kataras/iris"
 	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/websocket"
-	"os"
 )
 
 // In your main() function
@@ -52,7 +51,5 @@ func main() {
 		})
 	})
 
-	//
-
-	api.Listen("0.0.0.0"+":80")
+	api.Listen("0.0.0.0:80")
 }

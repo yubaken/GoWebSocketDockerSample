@@ -18,7 +18,7 @@ $(function () {
         appendMessage($("<div>" + message + "</div>"));
     });
 
-    $("sendBtn").click(function () {
+    $("#sendBtn").click(function () {
         ws.Emit("chat", messageTxt.val().toString());
         messageTxt.val("");
     });
