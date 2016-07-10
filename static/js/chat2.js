@@ -4,7 +4,7 @@ var messages;
 $(function () {
     messageTxt = $("#messageTxt");
     messages = $("#messages");
-    var msg = {Room: "chat1", Msg: ""};
+    var msg = {Room: "chat2", Msg: ""};
 
     ws = new Ws("ws://" + HOST + "/my_endpoint");
     ws.OnConnect(function () {
