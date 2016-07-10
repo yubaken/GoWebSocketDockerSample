@@ -10,16 +10,16 @@ COPY ./*.go /opt/iris/
 COPY ./static /opt/iris/static
 COPY ./templates /opt/iris/templates
 
-WORKDIR /opt/iris/
-RUN chmod -R 775 *
-RUN mkdir -p /opt/iris/certs
-
 WORKDIR /opt/
 RUN printf "#!/bin/bash \n\
 if [ -e /opt/iris_dev/main.go ]; then \n\
+  cd /opt/iris_dev/ \n\
+  chmod -R 775 * \n\
   echo 'Running Develop Env' \n\
   go run /opt/iris_dev/main.go \n\
 else \n\
+  cd /opt/iris/ \n\
+  chmod -R 775 * \n\
   echo 'Running Product Env' \n\
   go run /opt/iris/main.go \n\
 fi" >> iris_run.sh
