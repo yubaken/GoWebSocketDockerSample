@@ -2,7 +2,9 @@ version: '2'
 networks:
   web:
   db:
-
+volumes:
+  mysql-data:
+    driver: local
 services:
   web:
     build: .
@@ -21,5 +23,7 @@ services:
       - db
     ports:
       - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=password
