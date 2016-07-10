@@ -1,14 +1,14 @@
 version: '2'
 networks:
-  go_web:
+  web:
   db:
 
 services:
-  go_web:
+  web:
     build: .
-    container_name: go_web
+    container_name: web
     networks:
-      - go_web
+      - web
       - db
     ports:
       - "80:80"
