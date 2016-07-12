@@ -1,0 +1,2 @@
+CREATE TABLE users (id INT, name VARCHAR(255));
+CREATE TABLE chats (roomid VARCHAR(10), text VARCHAR(255));
