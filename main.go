@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/config"
 	"github.com/kataras/iris/websocket"
 	//"database/sql"
 	//"log"
@@ -24,15 +23,13 @@ type data struct {
 }
 
 func main() {
-	api := iris.New()
+	iris.Static("/js", "./static/js", 1)
 
-	api.Static("/js", "./static/js", 1)
-
-	api.Get("/", func(ctx *iris.Context) {
+	iris.Get("/", func(ctx *iris.Context) {
 		ctx.Render("client.html", clientPage{"Client Page", ctx.HostString()})
 	})
 
-	api.Get("/sub", func(ctx *iris.Context) {
+	iris.Get("/sub", func(ctx *iris.Context) {
 		ctx.Render("client2.html", clientPage{"Client Page", ctx.HostString()})
 	})
 
@@ -44,12 +41,10 @@ func main() {
 	//	log.Fatal(err)
 	//}
 	// important staff
-	websocketConfig := config.DefaultWebsocket()
-	websocketConfig.Endpoint = "/my_endpoint" // the path which the websocket client should listen/registed to
-	w := websocket.New(api, websocketConfig, api.Logger)
+	iris.Config.Websocket.Endpoint = "/my_endpoint"
 	// you created a new websocket server, you can create more than one... I leave that to you: w2:= websocket.New...; w2.OnConnection(...)
 	// for default 'iris.' station use that: w := websocket.New(iris.DefaultIris, "/my_endpoint")
-	w.OnConnection(func(c websocket.Connection) {
+	iris.Websocket.OnConnection(func(c websocket.Connection) {
 
 		c.On("init", func(message string) {
 			var d data
@@ -86,5 +81,5 @@ func main() {
 		})
 	})
 
-	api.Listen("0.0.0.0:80")
+	iris.Listen("0.0.0.0:80")
 }
