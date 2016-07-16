@@ -1,3 +1,2 @@
-gom 'github.com/kataras/iris', :tag => 'v3.0.0'
+gom 'github.com/kataras/iris', :tag => 'v3'
 gom 'github.com/go-sql-driver/mysql', :tag => 'v1.2'
-gom 'github.com/gocraft/dbr', :tag => 'v1.1'
