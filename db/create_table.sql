@@ -1,2 +1,5 @@
-CREATE TABLE users (id INT, name VARCHAR(255));
-CREATE TABLE chats (roomid VARCHAR(10), text VARCHAR(255));
+CREATE TABLE IF NOT EXISTS `chat`.`chats` (
+  `id` INT UNSIGNED NOT NULL,
+  `roomid` VARCHAR(255) NOT NULL,
+  `text` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`));
