@@ -9,6 +9,9 @@ import (
 	//"log"
 	_ "github.com/go-sql-driver/mysql"
 	"encoding/json"
+	sb "github.com/dropbox/godropbox/database/sqlbuilder"
+	"database/sql"
+	"log"
 )
 
 // In your main() function
@@ -33,13 +36,6 @@ func main() {
 		ctx.Render("client2.html", clientPage{"Client Page", ctx.HostString()})
 	})
 
-	//db, err := sql.Open("mysql", "root:password@db/chat?interpolateParams=true&collation=utf8mb4_bin")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//if _, err := db.Exec("SELECT SLEEP(?)", 42); err != nil {
-	//	log.Fatal(err)
-	//}
 	// important staff
 	iris.Config.Websocket.Endpoint = "/my_endpoint"
 	// you created a new websocket server, you can create more than one... I leave that to you: w2:= websocket.New...; w2.OnConnection(...)
@@ -50,6 +46,29 @@ func main() {
 			var d data
 			json.Unmarshal([]byte(message), &d)
 			c.Emit("chat", "join room: " + d.Room)
+			db, err := sql.Open("mysql", "root:password@tcp(db:3306)/chat?interpolateParams=true&collation=utf8mb4_bin")
+			if err != nil {
+				log.Fatal(err)
+			}
+			t := sb.NewTable(
+				"chats",
+				sb.StrColumn("roomid",sb.UTF8,sb.UTF8CaseSensitive,false),
+				sb.StrColumn("text",sb.UTF8,sb.UTF8CaseSensitive,false,),
+			)
+			query, _ := t.Select(t.C("roomid"), t.C("text")).String("chat")
+			rows, err := db.Query(query)
+			print(rows)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for rows.Next() {
+				var roomid string
+				var text string
+				if err := rows.Scan(&roomid, &text); err != nil {
+					log.Fatal(err)
+				}
+				c.Emit("chat", text)
+			}
 			c.Join(d.Room)
 		})
 
@@ -65,6 +84,18 @@ func main() {
 
 			//send the message to the whole room,
 			//all connections are inside this room will receive this message
+			db, err := sql.Open("mysql", "root:password@tcp(db:3306)/chat?interpolateParams=true&collation=utf8mb4_bin")
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = db.Exec(
+				`INSERT INTO chats (roomid, text) VALUES (?, ?) `,
+				d.Room,
+				d.Msg,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
 			c.To(d.Room).Emit("chat", "From: "+c.ID()+": "+d.Msg)
 		})
 

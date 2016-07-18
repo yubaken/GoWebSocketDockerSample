@@ -1,2 +1,3 @@
 gom 'github.com/kataras/iris', :tag => 'v3'
-gom 'github.com/go-sql-driver/mysql', :tag => 'v1.2'
+gom 'github.com/go-sql-driver/mysql', :commit => '3654d25ec346ee8ce71a68431025458d52a38ac0'
+gom 'github.com/dropbox/godropbox/database/sqlbuilder', :commit => '3c8a9189a8748951b62c6a48c072448b2fd4cac7'
