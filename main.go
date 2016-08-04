@@ -12,6 +12,8 @@ import (
 	sb "github.com/dropbox/godropbox/database/sqlbuilder"
 	"database/sql"
 	"log"
+	"github.com/spf13/viper"
+	"bytes"
 )
 
 // In your main() function
@@ -25,7 +27,26 @@ type data struct {
 	Msg  string
 }
 
+var dataSource bytes.Buffer
+
 func main() {
+	env := "local"
+	viper.SetConfigName("config-"+env)
+	viper.AddConfigPath("./config/")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("設定ファイル読み込みエラー: %s \n", err))
+	}
+	dataSource.WriteString(viper.GetString("db.user"))
+	dataSource.WriteString(":")
+	dataSource.WriteString(viper.GetString("db.password"))
+	dataSource.WriteString("@tcp(")
+	dataSource.WriteString(viper.GetString("db.url"))
+	dataSource.WriteString(":")
+	dataSource.WriteString(viper.GetString("db.port"))
+	dataSource.WriteString(")/chat")
+	dataSource.WriteString("?interpolateParams=true&collation=utf8mb4_bin")
+
 	iris.Static("/js", "./static/js", 1)
 
 	iris.Get("/", func(ctx *iris.Context) {
@@ -46,7 +67,7 @@ func main() {
 			var d data
 			json.Unmarshal([]byte(message), &d)
 			c.Emit("chat", "join room: " + d.Room)
-			db, err := sql.Open("mysql", "root:password@tcp(db:3306)/chat?interpolateParams=true&collation=utf8mb4_bin")
+			db, err := sql.Open("mysql",dataSource.String())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -84,7 +105,7 @@ func main() {
 
 			//send the message to the whole room,
 			//all connections are inside this room will receive this message
-			db, err := sql.Open("mysql", "root:password@tcp(db:3306)/chat?interpolateParams=true&collation=utf8mb4_bin")
+			db, err := sql.Open("mysql",dataSource.String())
 			if err != nil {
 				log.Fatal(err)
 			}
