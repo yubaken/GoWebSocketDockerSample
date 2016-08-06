@@ -27,16 +27,17 @@ type data struct {
 	Msg  string
 }
 
-var dataSource bytes.Buffer
+var db *sql.DB
+var dbErr error
 
 func main() {
-	env := "local"
-	viper.SetConfigName("config-"+env)
+	viper.SetConfigName("config")
 	viper.AddConfigPath("./config/")
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("設定ファイル読み込みエラー: %s \n", err))
 	}
+	var dataSource bytes.Buffer
 	dataSource.WriteString(viper.GetString("db.user"))
 	dataSource.WriteString(":")
 	dataSource.WriteString(viper.GetString("db.password"))
@@ -46,6 +47,11 @@ func main() {
 	dataSource.WriteString(viper.GetString("db.port"))
 	dataSource.WriteString(")/chat")
 	dataSource.WriteString("?interpolateParams=true&collation=utf8mb4_bin")
+
+	db, dbErr = sql.Open("mysql",dataSource.String())
+	if dbErr != nil {
+		log.Fatal(dbErr)
+	}
 
 	iris.Static("/js", "./static/js", 1)
 
@@ -67,7 +73,6 @@ func main() {
 			var d data
 			json.Unmarshal([]byte(message), &d)
 			c.Emit("chat", "join room: " + d.Room)
-			db, err := sql.Open("mysql",dataSource.String())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -105,10 +110,6 @@ func main() {
 
 			//send the message to the whole room,
 			//all connections are inside this room will receive this message
-			db, err := sql.Open("mysql",dataSource.String())
-			if err != nil {
-				log.Fatal(err)
-			}
 			_, err = db.Exec(
 				`INSERT INTO chats (roomid, text) VALUES (?, ?) `,
 				d.Room,
