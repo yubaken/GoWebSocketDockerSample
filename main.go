@@ -30,6 +30,29 @@ type data struct {
 var db *sql.DB
 var dbErr error
 
+func getMessage(c *iris.Context){
+	t := sb.NewTable(
+		"chats",
+		sb.StrColumn("roomid",sb.UTF8,sb.UTF8CaseSensitive,false),
+		sb.StrColumn("text",sb.UTF8,sb.UTF8CaseSensitive,false,),
+	)
+	query, _ := t.Select(t.C("roomid"), t.C("text")).String("chat")
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var messages[] string
+	for rows.Next() {
+		var roomid string
+		var text string
+		if err := rows.Scan(&roomid, &text); err != nil {
+			log.Fatal(err)
+		}
+		messages = append(messages, text)
+	}
+	c.JSON(iris.StatusOK, map[string][]string{"messages": messages})
+}
+
 func main() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("./config/")
@@ -54,13 +77,12 @@ func main() {
 	}
 
 	iris.Static("/js", "./static/js", 1)
+	iris.Static("/css", "./static/css", 1)
+
+	iris.Get("/messages", getMessage)
 
 	iris.Get("/", func(ctx *iris.Context) {
 		ctx.Render("client.html", clientPage{"Client Page", ctx.HostString()})
-	})
-
-	iris.Get("/sub", func(ctx *iris.Context) {
-		ctx.Render("client2.html", clientPage{"Client Page", ctx.HostString()})
 	})
 
 	// important staff
@@ -72,28 +94,9 @@ func main() {
 		c.On("init", func(message string) {
 			var d data
 			json.Unmarshal([]byte(message), &d)
-			c.Emit("chat", "join room: " + d.Room)
+			c.Emit("join", "join room: " + d.Room)
 			if err != nil {
 				log.Fatal(err)
-			}
-			t := sb.NewTable(
-				"chats",
-				sb.StrColumn("roomid",sb.UTF8,sb.UTF8CaseSensitive,false),
-				sb.StrColumn("text",sb.UTF8,sb.UTF8CaseSensitive,false,),
-			)
-			query, _ := t.Select(t.C("roomid"), t.C("text")).String("chat")
-			rows, err := db.Query(query)
-			print(rows)
-			if err != nil {
-				log.Fatal(err)
-			}
-			for rows.Next() {
-				var roomid string
-				var text string
-				if err := rows.Scan(&roomid, &text); err != nil {
-					log.Fatal(err)
-				}
-				c.Emit("chat", text)
 			}
 			c.Join(d.Room)
 		})
