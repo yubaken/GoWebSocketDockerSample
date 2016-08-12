@@ -8,12 +8,14 @@ RUN mkdir -p /opt/iris_dev/
 COPY ./*.go /opt/iris/
 COPY ./Gomfile /opt/iris/
 COPY ./static /opt/iris/static
+COPY ./config /opt/iris/config
 COPY ./templates /opt/iris/templates
 
 WORKDIR /opt/iris/
 RUN gom install
 
-# TODO Gomでrunしてもsrcディレクトリ配下でないと失敗する
+ENV IRIS_CONFIG_NAME=config-docker
+
 WORKDIR /opt/
 RUN printf "#!/bin/bash \n\
   cd /opt/iris/vendor \n\

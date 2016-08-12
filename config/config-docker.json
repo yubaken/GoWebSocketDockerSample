@@ -1,0 +1,8 @@
+{
+  "db": {
+    "user": "root",
+    "password": "password",
+    "url": "db",
+    "port": "3306"
+  }
+}

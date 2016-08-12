@@ -13,6 +13,7 @@ import (
 	"log"
 	"github.com/spf13/viper"
 	"bytes"
+	"os"
 )
 
 // In your main() function
@@ -53,7 +54,12 @@ func getMessage(c *iris.Context){
 }
 
 func main() {
-	viper.SetConfigName("config")
+	configName := os.Getenv("IRIS_CONFIG_NAME")
+	if (len(configName) > 0) {
+		viper.SetConfigName(configName)
+	}else {
+		viper.SetConfigName("config")
+	}
 	viper.AddConfigPath("./config/")
 	err := viper.ReadInConfig()
 	if err != nil {
