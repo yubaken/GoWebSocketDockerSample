@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/websocket"
 	//"database/sql"
 	//"log"
 	_ "github.com/go-sql-driver/mysql"
@@ -89,7 +88,7 @@ func main() {
 	iris.Config.Websocket.Endpoint = "/my_endpoint"
 	// you created a new websocket server, you can create more than one... I leave that to you: w2:= websocket.New...; w2.OnConnection(...)
 	// for default 'iris.' station use that: w := websocket.New(iris.DefaultIris, "/my_endpoint")
-	iris.Websocket.OnConnection(func(c websocket.Connection) {
+	iris.Websocket.OnConnection(func(c iris.WebsocketConnection) {
 
 		c.On("init", func(message string) {
 			var d data
